@@ -2,7 +2,7 @@
   "name": "googlebooks-app",
   "version": "1.0.0",
   "description": "",
-  "main": "server/server.js",
+  "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
     "start:dev": "concurrently \"cd server && npm run dev\" \"wait-on tcp:3001 && cd client && npm run dev\"",
