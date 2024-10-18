@@ -103,7 +103,7 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
           type="submit"
           variant="success"
         >
-          Submit
+          Login
         </Button>
       </Form>
     </>

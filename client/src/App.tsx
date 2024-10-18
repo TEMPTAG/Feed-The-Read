@@ -35,7 +35,19 @@ const authLink = setContext((_, { headers }) => {
 // Create an Apollo Client instance, combining the auth link and HTTP link
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      User: {
+        fields: {
+          savedBooks: {
+            merge(existing = [], incoming = []) {
+              return [...existing, ...incoming];
+            },
+          },
+        },
+      },
+    },
+  }),
 });
 
 // Define the main App component

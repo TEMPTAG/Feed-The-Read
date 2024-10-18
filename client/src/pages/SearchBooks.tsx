@@ -16,27 +16,7 @@ const SearchBooks = () => {
   const [searchInput, setSearchInput] = useState("");
 
   // Apollo `useMutation` hook for the `SAVE_BOOK` mutation
-  const [saveBook, { error: saveBookError }] = useMutation(SAVE_BOOK, {
-    update(cache, { data: { saveBook } }) {
-      try {
-        // Read existing user data from the cache
-        const { me }: any = cache.readQuery({ query: GET_ME });
-
-        // Write the updated data back to the cache
-        cache.writeQuery({
-          query: GET_ME,
-          data: {
-            me: {
-              ...me,
-              savedBooks: [...me.savedBooks, saveBook],
-            },
-          },
-        });
-      } catch (e) {
-        console.error("Error updating the cache", e);
-      }
-    },
-  });
+  const [saveBook, { error: saveBookError }] = useMutation(SAVE_BOOK);
 
   if (saveBookError) {
     console.log(JSON.stringify(saveBookError));
@@ -69,6 +49,7 @@ const SearchBooks = () => {
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || "",
+        link: book.volumeInfo.previewLink || "",
       }));
 
       setSearchedBooks(bookData);
@@ -88,8 +69,6 @@ const SearchBooks = () => {
     if (!token) {
       return false;
     }
-
-    console.log(bookToSave);
 
     try {
       await saveBook({
@@ -153,6 +132,14 @@ const SearchBooks = () => {
                     <Card.Title>{book.title}</Card.Title>
                     <p className="small">Authors: {book.authors.join(", ")}</p>
                     <Card.Text>{book.description}</Card.Text>
+                    <Button
+                      href={book.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="primary"
+                    >
+                      Preview Book
+                    </Button>
                     {Auth.loggedIn() && (
                       <Button
                         disabled={alreadySaved}

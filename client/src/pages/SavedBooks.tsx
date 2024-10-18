@@ -1,4 +1,5 @@
 import { Container, Card, Button, Row, Col } from "react-bootstrap";
+import Auth from "../utils/auth";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_ME } from "../utils/queries";
 import { REMOVE_BOOK } from "../utils/mutations";
@@ -6,38 +7,27 @@ import type { Book } from "../models/Book";
 
 const SavedBooks = () => {
   // Use `useQuery` to get user data
-  const { loading, data } = useQuery(GET_ME);
+  const { loading, data, refetch } = useQuery(GET_ME);
 
   // Set up `useMutation` for removing books
-  const [removeBook] = useMutation(REMOVE_BOOK, {
-    update(cache, { data: { removeBook } }) {
-      // Read the cache data for the logged-in user
-      const { me } = cache.readQuery({ query: GET_ME }) as any;
-
-      // Update the cache with the modified book list
-      cache.writeQuery({
-        query: GET_ME,
-        data: {
-          me: {
-            ...me,
-            savedBooks: me.savedBooks.filter(
-              (book: Book) => book.bookId !== removeBook.bookId
-            ),
-          },
-        },
-      });
-    },
-  });
+  const [removeBook] = useMutation(REMOVE_BOOK);
 
   // Get user data or fallback to empty object
   const userData = data?.me || {};
 
   // Create function to handle deleting a book
   const handleDeleteBook = async (bookId: string) => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+
+    if (!token) {
+      return false;
+    }
+
     try {
       await removeBook({
         variables: { bookId },
       });
+      refetch(); // Refetch user data after deleting a book
     } catch (err) {
       console.error(err);
     }
@@ -82,6 +72,14 @@ const SavedBooks = () => {
                   <Card.Title>{book.title}</Card.Title>
                   <p className="small">Authors: {book.authors.join(", ")}</p>
                   <Card.Text>{book.description}</Card.Text>
+                  <Button
+                    href={book.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="primary"
+                  >
+                    Preview Book
+                  </Button>
                   <Button
                     className="btn-block btn-danger"
                     onClick={() => handleDeleteBook(book.bookId)}
