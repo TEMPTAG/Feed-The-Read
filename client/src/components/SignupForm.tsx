@@ -15,7 +15,6 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
     username: "",
     email: "",
     password: "",
-    savedBooks: [],
   });
   // set state for form validation
   const [validated] = useState(false);
