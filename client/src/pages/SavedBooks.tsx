@@ -63,7 +63,7 @@ const SavedBooks = () => {
               <Card border="dark">
                 {book.image ? (
                   <Card.Img
-                    src={book.image}
+                    src={book.image.replace("http://", "https://")}
                     alt={`The cover for ${book.title}`}
                     variant="top"
                   />
@@ -73,7 +73,7 @@ const SavedBooks = () => {
                   <p className="small">Authors: {book.authors.join(", ")}</p>
                   <Card.Text>{book.description}</Card.Text>
                   <Button
-                    href={book.link}
+                    href={book.link.replace("http://", "https://")}
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="primary"

@@ -45,11 +45,15 @@ const SearchBooks = () => {
 
       const bookData = items.map((book: GoogleAPIBook) => ({
         bookId: book.id,
-        authors: book.volumeInfo.authors || ["No author to display"],
-        title: book.volumeInfo.title,
-        description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || "",
-        link: book.volumeInfo.previewLink || "",
+        authors: book.volumeInfo.authors || ["No author available"],
+        title: book.volumeInfo.title || "No title available",
+        description: book.volumeInfo.description || "No description available",
+        image: book.volumeInfo.imageLinks?.thumbnail
+          ? book.volumeInfo.imageLinks.thumbnail.replace("http://", "https://")
+          : "",
+        link: book.volumeInfo.previewLink
+          ? book.volumeInfo.previewLink.replace("http://", "https://")
+          : "#",
       }));
 
       setSearchedBooks(bookData);
