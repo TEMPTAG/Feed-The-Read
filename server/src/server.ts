@@ -41,11 +41,11 @@ const startApolloServer = async () => {
   // Serve static assets in production mode (React frontend)
   if (process.env.NODE_ENV === "production") {
     // Serve the compiled frontend assets from the /dist directory
-    app.use(express.static(path.join(__dirname, "../client/dist")));
+    app.use(express.static(path.join(__dirname, "../../client/dist")));
 
     // Route all unmatched requests to the frontend's index.html (for React Router to handle client-side routing)
     app.get("*", (_req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+      res.sendFile(path.join(__dirname, "../../client/dist/index.html"));
     });
   }
 
