@@ -16,7 +16,9 @@ const SearchBooks = () => {
   const [searchInput, setSearchInput] = useState("");
 
   // Apollo `useMutation` hook for the `SAVE_BOOK` mutation
-  const [saveBook, { error: saveBookError }] = useMutation(SAVE_BOOK);
+  const [saveBook, { error: saveBookError }] = useMutation(SAVE_BOOK, {
+    refetchQueries: [{ query: GET_ME }],
+  });
 
   if (saveBookError) {
     console.log(JSON.stringify(saveBookError));
