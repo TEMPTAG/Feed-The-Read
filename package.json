@@ -20,5 +20,8 @@
   "devDependencies": {
     "concurrently": "^8.2.0",
     "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "p-throttle": "^6.2.0"
   }
 }

@@ -8,6 +8,7 @@ import Auth from "../utils/auth";
 import { searchGoogleBooks } from "../utils/API";
 import type { Book } from "../models/Book";
 import type { GoogleAPIBook } from "../models/GoogleAPIBook";
+import pThrottle from "p-throttle";
 
 const SearchBooks = () => {
   // State for holding returned Google API data
@@ -26,6 +27,33 @@ const SearchBooks = () => {
   const { data: userData } = useQuery(GET_ME);
   const savedBooks = userData?.me?.savedBooks || [];
 
+  // Throttle the API requests to only allow 1 request per second
+  const throttle = pThrottle({
+    limit: 1, // One request
+    interval: 1000, // Every 1 second
+  });
+
+  // Create a throttled version of the search request
+  const throttledSearchGoogleBooks = throttle(async (query: string) => {
+    const response = await searchGoogleBooks(query);
+
+    if (!response.ok) {
+      throw new Error("Something went wrong!");
+    }
+
+    const { items } = await response.json();
+
+    const bookData = items.map((book: GoogleAPIBook) => ({
+      bookId: book.id,
+      authors: book.volumeInfo.authors || ["No author to display"],
+      title: book.volumeInfo.title,
+      description: book.volumeInfo.description,
+      image: book.volumeInfo.imageLinks?.thumbnail || "",
+    }));
+
+    setSearchedBooks(bookData);
+  });
+
   // Function to handle searching books using Google API
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,24 +63,8 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await searchGoogleBooks(searchInput);
-
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
-
-      const { items } = await response.json();
-
-      const bookData = items.map((book: GoogleAPIBook) => ({
-        bookId: book.id,
-        authors: book.volumeInfo.authors || ["No author to display"],
-        title: book.volumeInfo.title,
-        description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || "",
-        link: book.volumeInfo.previewLink || "",
-      }));
-
-      setSearchedBooks(bookData);
+      // Call the throttled version of the search function
+      await throttledSearchGoogleBooks(searchInput);
       setSearchInput("");
     } catch (err) {
       console.error(err);
